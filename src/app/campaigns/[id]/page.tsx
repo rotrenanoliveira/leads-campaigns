@@ -1,8 +1,10 @@
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+
 import { CampaignDescription } from '@/components/campaigns/campaign-description'
 import { CampaignForm } from '@/components/campaigns/campaign-form'
 import { getCampaign } from '@/server/data/get-campaign'
-import { notFound } from 'next/navigation'
-import Image from 'next/image'
+import { env } from '@/env'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id
@@ -67,7 +69,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
         <div className="w-full max-w-[384px] space-y-4">
           <CampaignDescription description={campaign.description} />
-          <CampaignForm campaign={campaign} />
+          <CampaignForm leadsApiUrl={env.LEADS_API_URL} campaign={campaign} />
         </div>
       </div>
     </section>

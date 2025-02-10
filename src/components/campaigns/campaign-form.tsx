@@ -2,24 +2,75 @@
 
 import { MoveUpRightIcon } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
+import { toast } from 'sonner'
+import axios from 'axios'
+
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
+import { fetcher } from '@/utils/fetcher'
 import type { Campaign } from '@/utils/types'
+import { useRouter } from 'next/navigation'
 
 interface CampaignFormProps {
   campaign: Campaign
+  leadsApiUrl: string
 }
 
-export function CampaignForm({ campaign }: CampaignFormProps) {
+export function CampaignForm({ campaign, leadsApiUrl }: CampaignFormProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const router = useRouter()
 
   const btnBackgroundColor = {
     backgroundColor: isHovered ? `${campaign.accentColor}BF` : campaign.accentColor,
   }
 
-  function handleOnSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleOnSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const data = Object.fromEntries(formData.entries())
+
+    const [response, error] = await fetcher(
+      axios.post(`${leadsApiUrl}/api/campaigns/${campaign.id}/leads`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    )
+
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+
+    if (response.status === 404) {
+      toast.error('Campanha não encontrada')
+      return
+    }
+
+    if (response.status === 400) {
+      toast.error(response.data.message)
+      return
+    }
+
+    if (campaign.onSuccess.type === 'message') {
+      toast.success(campaign.onSuccess.data)
+      return
+    }
+
+    toast.success('Enviado com sucesso!')
+
+    if (campaign.onSuccess.type === 'redirect') {
+      router.push(campaign.onSuccess.data)
+      return
+    }
+
+    if (campaign.onSuccess.type === 'whatsapp') {
+      window.open(`https://wa.me/55${campaign.onSuccess.data.replaceAll(' ', '')}`, '_blank')
+      return
+    }
   }
 
   return (
