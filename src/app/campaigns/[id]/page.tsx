@@ -34,8 +34,8 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   const campaignImageUrl = new URL(campaign.imageUrl).toString()
 
   return (
-    <section className="max-w-screen-xl box-border p-4">
-      <div className="max-w-screen-lg mt-8 2xl:mt-16 space-y-4 text-center capitalize items-center">
+    <section className="w-full max-w-screen-xl box-border p-4">
+      <div className="mt-8 2xl:mt-16 space-y-4 text-center capitalize items-center">
         <p className="font-normal text-xl md:text-3xl lg:text-4xl">{campaign.title}</p>
         <p className="font-light text-lg md:text-xl lg:text-2xl">{campaign.subtitle}</p>
         <div className="w-32 h-1 mx-auto rounded-full" style={{ backgroundColor: campaign.accentColor }} />
